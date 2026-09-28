@@ -1,0 +1,44 @@
+databases:
+  - name: practic-lab8-10-db
+    databaseName: timetrack
+    user: timetrack_user
+    plan: free
+    region: frankfurt
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: practic-lab8-10-api-2026
+    runtime: python
+    plan: free
+    region: frankfurt
+    buildCommand: pip install -r lab8_10_backend/requirements.txt
+    startCommand: cd lab8_10_backend && python -m app.render_bootstrap && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: practic-lab8-10-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRE_MINUTES
+        value: "480"
+      - key: DEMO_USER_PASSWORD
+        value: ChangeMe123!
+      - key: CORS_ORIGINS
+        value: https://practic-lab8-10-demo-2026.onrender.com
+
+  - type: web
+    name: practic-lab8-10-demo-2026
+    runtime: node
+    plan: free
+    region: frankfurt
+    rootDir: lab6_frontend
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://practic-lab8-10-api-2026.onrender.com/api
