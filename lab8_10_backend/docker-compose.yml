@@ -29,10 +29,11 @@ services:
       dockerfile: Dockerfile
     container_name: practice-lab8-10-backend
     restart: unless-stopped
-    env_file:
-      - .env.example
     environment:
       DATABASE_URL: postgresql+psycopg://timetrack_user:timetrack_pass@db:5432/timetrack
+      JWT_SECRET: ${JWT_SECRET:-replace-with-a-random-secret-at-least-32-characters}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-480}
+      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-ChangeMe123!}
       CORS_ORIGINS: http://localhost:3101,http://127.0.0.1:3101
     ports:
       - "8100:8000"
