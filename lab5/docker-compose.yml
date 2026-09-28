@@ -1,0 +1,75 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: timetrack_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: timetrack
+      POSTGRES_USER: timetrack_user
+      POSTGRES_PASSWORD: timetrack_pass
+      TZ: Europe/Kyiv
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U timetrack_user -d timetrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: timetrack_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@timetrack.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ../lab8_10_backend
+      dockerfile: Dockerfile
+    container_name: timetrack_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://timetrack_user:timetrack_pass@db:5432/timetrack
+      JWT_SECRET: ${JWT_SECRET:-local-coursework-secret-change-before-deployment-2026}
+      JWT_EXPIRE_MINUTES: ${JWT_EXPIRE_MINUTES:-480}
+      DEMO_USER_PASSWORD: ${DEMO_USER_PASSWORD:-ChangeMe123!}
+      CORS_ORIGINS: http://localhost:3100,http://127.0.0.1:3100
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  frontend:
+    build:
+      context: ../lab6_frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000/api
+    container_name: timetrack_frontend
+    restart: unless-stopped
+    ports:
+      - "3100:3000"
+    environment:
+      NODE_ENV: production
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  db_data:

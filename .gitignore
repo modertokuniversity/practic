@@ -1,0 +1,17 @@
+# Node.js frontend
+lab6_frontend/node_modules/
+lab6_frontend/.next/
+lab6_frontend/tsconfig.tsbuildinfo
+
+# Python API
+lab8_10_backend/.venv/
+lab8_10_backend/__pycache__/
+lab8_10_backend/**/*.py[cod]
+.pytest_cache/
+
+# Local secrets and generated files
+.env
+**/.env
+*.log
+tmp/
+output/

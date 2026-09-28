@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  background-color: #f8f8fb;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d1dc transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: #d1d1dc;
+  border-radius: 999px;
+}
+
+.recharts-cartesian-axis-tick text {
+  fill: #9c9cad;
+  font-size: 11px;
+}
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #f1f1f6;
+}
