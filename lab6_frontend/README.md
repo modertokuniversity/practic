@@ -1,6 +1,6 @@
 # TimeTracker — frontend
 
-Клієнтська частина вебзастосунку для обліку робочого часу працівників (лабораторні роботи № 6–7). Next.js 14 + TypeScript + Tailwind CSS, backend поки відсутній — усі дані мокові й живуть у браузері (Zustand + localStorage), тому інтерфейс повністю інтерактивний: таймер справді тікає, форми справді зберігають дані, заявки справді змінюють статус.
+Клієнтська частина вебзастосунку для обліку робочого часу працівників (лабораторні роботи № 6–7): Next.js 14 + TypeScript + Tailwind CSS. Для лабораторних 8–10 цей самий frontend підключений до FastAPI та PostgreSQL через REST контракт у `API_CONTRACT.md`.
 
 ## Швидкий старт через Docker
 
@@ -9,7 +9,7 @@ cd lab6_frontend
 docker compose up -d --build
 ```
 
-Окремо frontend доступний на **http://localhost:3100**, однак для повного запуску frontend + FastAPI + PostgreSQL використовуйте загальний compose-файл із `lab5/docker-compose.yml` (див. кореневий README).
+Повний незалежний стек Frontend + FastAPI + PostgreSQL запускається з `../lab8_10_backend` (див. його README). Не використовуйте для цього Compose лабораторної №5.
 
 Зупинити:
 

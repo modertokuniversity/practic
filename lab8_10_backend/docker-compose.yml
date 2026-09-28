@@ -1,0 +1,74 @@
+name: practice-lab8-10
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: practice-lab8-10-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: timetrack
+      POSTGRES_USER: timetrack_user
+      POSTGRES_PASSWORD: timetrack_pass
+      TZ: Europe/Kyiv
+    ports:
+      - "5434:5432"
+    volumes:
+      - practice_lab8_10_db_data:/var/lib/postgresql/data
+      - ../lab5/sql:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U timetrack_user -d timetrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    networks:
+      - practice_lab8_10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: practice-lab8-10-backend
+    restart: unless-stopped
+    env_file:
+      - .env.example
+    environment:
+      DATABASE_URL: postgresql+psycopg://timetrack_user:timetrack_pass@db:5432/timetrack
+      CORS_ORIGINS: http://localhost:3101,http://127.0.0.1:3101
+    ports:
+      - "8100:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks:
+      - practice_lab8_10
+
+  frontend:
+    build:
+      context: ../lab6_frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8100/api
+    container_name: practice-lab8-10-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    ports:
+      - "3101:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - practice_lab8_10
+
+networks:
+  practice_lab8_10:
+    name: practice-lab8-10-network
+
+volumes:
+  practice_lab8_10_db_data:
+    name: practice-lab8-10-db-data
