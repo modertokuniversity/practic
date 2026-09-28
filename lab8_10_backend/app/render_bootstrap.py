@@ -3,7 +3,6 @@
 from pathlib import Path
 
 import psycopg
-from sqlalchemy import text
 
 from app.core.config import get_settings
 
